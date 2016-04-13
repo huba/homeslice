@@ -4,7 +4,7 @@ module Geometry
   # Hash the edge object based on its first and last points
   class Edge
     def eql?(other)
-      self.hash == other.hash
+      self == other
     end
     
     def hash

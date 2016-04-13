@@ -39,15 +39,19 @@ module Homeslice
     end
     
     def has_edge(edge)
-      @edges.member? edge
+      @edges.value? edge
+    end
+    
+    def ==(other)
+      self.points == other.points
     end
     
     def eql?(other)
-      self.hash == other.hash
+      self == other
     end
     
     def hash
-      @points.to_a.hash
+      @points.values.hash
     end
   end
 end
