@@ -40,7 +40,7 @@ describe Homeslice do
     test_model.create_face [0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.5, 0.5, 1.0]
     test_model.create_face [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
     
-    expect(test_model.has_free_edges).to be false
+    expect(test_model.has_free_edges?).to be false
   end
   
   it "should make a model with free edges." do
@@ -49,6 +49,17 @@ describe Homeslice do
     test_model.create_face [0.0, 0.0, 0.0], [0.5, 0.5, 1.0], [1.0, 0.0, 0.0]
     test_model.create_face [0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.5, 0.5, 1.0]
     
-    expect(test_model.has_free_edges).to be true
+    expect(test_model.has_free_edges?).to be true
+  end
+  
+  it "should compute the correct bounding box for the model" do
+    test_model = Homeslice::Model.new
+    test_model.create_face [0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.5, 0.5, 1.0]
+    test_model.create_face [0.0, 0.0, 0.0], [0.5, 0.5, 1.0], [1.0, 0.0, 0.0]
+    test_model.create_face [0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.5, 0.5, 1.0]
+    test_model.create_face [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]
+    
+    expect(test_model.min_point).to be == Geometry::Point[0.0, 0.0, 0.0]
+    expect(test_model.max_point).to be == Geometry::Point[1.0, 1.0, 1.0]
   end
 end

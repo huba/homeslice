@@ -4,6 +4,8 @@ require_relative 'face'
 
 module Homeslice
   class Model
+    attr_reader :min_point, :max_point
+    
     def initialize()
       @edges = {}
       @free_edges = {} # all the edges that so far only have one facet attached to them
@@ -79,7 +81,8 @@ module Homeslice
       return neighbours
     end
     
-    def has_free_edges
+    def has_free_edges?
+      # No free edges implies no holes in the model
       not @free_edges.empty?
     end
   end
