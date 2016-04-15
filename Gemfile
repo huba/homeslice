@@ -1,6 +1,11 @@
 source 'https://rubygems.org'
 
-gem 'geometry'
-gem 'stl'
+gemspec
 
-gem 'rspec'
+group :examples do
+  gem 'opengl'
+  gem 'glut'
+  gem 'glu'
+  
+  # gem 'homeslice', :git => '.'
+end
