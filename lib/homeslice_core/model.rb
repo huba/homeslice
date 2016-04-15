@@ -85,5 +85,11 @@ module Homeslice
       # No free edges implies no holes in the model
       not @free_edges.empty?
     end
+    
+    def each_face(&block)
+      @faces.each do |face|
+        block.call face
+      end
+    end
   end
 end
