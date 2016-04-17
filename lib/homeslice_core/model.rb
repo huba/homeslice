@@ -91,5 +91,11 @@ module Homeslice
         block.call face
       end
     end
+    
+    def each_edge(&block)
+      @edges.each_key do |edge|
+        block.call edge
+      end
+    end
   end
 end
