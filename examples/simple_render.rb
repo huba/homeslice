@@ -46,6 +46,10 @@ class PerspectiveCamera
     move_to Geometry::Point[new_pos[0], new_pos[1], new_pos[2]]
   end
   
+  def change_height(delta)
+    move_to Geometry::Point[@pos.x, @pos.y, @pos.z + delta]
+  end
+  
   def update_aspect(aspect)
     @aspect = aspect
     glutPostRedisplay
@@ -68,10 +72,15 @@ class PerspectiveCamera
   end
 end
 
-camera = PerspectiveCamera.new Geometry::Point[20, 20, 40], Geometry::Point[50, 50, 0], Vector[0, 0, 1]
-test_model = Homeslice::Parser.read_file './examples/10mm_test_cube.stl'
+camera = PerspectiveCamera.new Geometry::Point[00, 00, 40], Geometry::Point[50, 50, 0], Vector[0, 0, 1]
+test_model = Homeslice::Parser.read_file './examples/naroznik.stl'
 
-puts "Model goes from height #{test_model.min_point}mm to #{test_model.max_point}mm"
+puts "Model goes from height #{test_model.min_point.z}mm to #{test_model.max_point.z}mm."
+if test_model.has_free_edges?
+  puts "Model has holes."
+else
+  puts "Model is completely closed."
+end
 
 #moves the center to x, y
 def render_model(model, cam, x, y)
@@ -92,28 +101,61 @@ def render_model(model, cam, x, y)
 end
 
 def init
-  fogColor = [0.0, 0.0, 0.0, 1.0]
+  # fogColor = [0.0, 0.0, 0.0, 1.0]
 
-  glEnable(GL_FOG)
-  glFog(GL_FOG_MODE, GL_LINEAR)
-  glHint(GL_FOG_HINT, GL_NICEST)  # per pixel
-  glFog(GL_FOG_START, 50.0)
-  glFog(GL_FOG_END, 200.0)
-  glFog(GL_FOG_COLOR, fogColor)
-  glClearColor(0.0, 0.0, 0.0, 1.0)
+  # glEnable(GL_FOG)
+  # glFog(GL_FOG_MODE, GL_LINEAR)
+  # glHint(GL_FOG_HINT, GL_NICEST)  # per pixel
+  # glFog(GL_FOG_START, 50.0)
+  # glFog(GL_FOG_END, 150.0)
+  # glFog(GL_FOG_COLOR, fogColor)
+  glClearColor(1.0, 1.0, 1.0, 1.0)
+  
+  ambient = [ 0.1, 0.1, 0.1, 1.0 ]
+  diffuse = [ 1.0, 1.0, 1.0, 1.0 ]
+  position = [ 50.0, 50.0, 100.0, 0.0 ]
+  lmodel_ambient = [ 0.4, 0.4, 0.4, 1.0 ]
+  local_view = [ 0.0 ]
+  
+  glLight(GL_LIGHT0, GL_AMBIENT, ambient)
+  glLight(GL_LIGHT0, GL_DIFFUSE, diffuse)
+  glLight(GL_LIGHT0, GL_POSITION, position)
+  glLightModel(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient)
+  glLightModel(GL_LIGHT_MODEL_LOCAL_VIEWER, local_view)
+
+  glEnable(GL_LIGHTING)
+  glEnable(GL_LIGHT0)
 
   glDepthFunc(GL_LESS)
   glEnable(GL_DEPTH_TEST)
-  glShadeModel(GL_FLAT)
+  glEnable(GL_CULL_FACE)
+  # glEnable(GL_COLOR_MATERIAL)
+  glShadeModel(GL_SMOOTH)
 end
 
 display = Proc.new do
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+  # glPolygonMode(GL_FRONT, GL_FILL)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+  
+  no_mat = [ 0.0, 0.0, 0.0, 1.0 ]
+  mat_ambient = [ 0.7, 0.7, 0.7, 1.0 ]
+  mat_ambient_color = [ 0.8, 0.8, 0.2, 1.0 ]
+  mat_diffuse = [ 0.1, 0.5, 0.8, 1.0 ]
+  mat_specular = [ 1.0, 1.0, 1.0, 1.0 ]
+  no_shininess = [ 0.0 ]
+  low_shininess = [ 5.0 ]
+  high_shininess = [ 100.0 ]
+  mat_emission = [0.3, 0.2, 0.2, 0.0]
   
   glMatrixMode(GL_MODELVIEW)
   glLoadIdentity
   camera.apply
+  
+  # glMaterial(GL_FRONT, GL_AMBIENT, no_mat)
+  # glMaterial(GL_FRONT, GL_DIFFUSE, no_mat)
+  glMaterial(GL_FRONT, GL_SPECULAR, no_mat)
+  # glMaterial(GL_FRONT, GL_SHININESS, no_shininess)
+  # glMaterial(GL_FRONT, GL_EMISSION, no_mat)
   
   glColor3f(0.4, 0.4, 0.4)
   glBegin(GL_LINES)
@@ -131,8 +173,15 @@ display = Proc.new do
   end
   glEnd
   
-  glColor3f(1.0, 1.0, 1.0)
-  render_model(test_model, camera, 10, 10)
+  # glMaterial(GL_FRONT, GL_AMBIENT, mat_ambient)
+  glMaterial(GL_FRONT, GL_DIFFUSE, mat_diffuse)
+  glMaterial(GL_FRONT, GL_SPECULAR, mat_specular)
+  # glMaterial(GL_FRONT, GL_SHININESS, no_shininess)
+  # glMaterial(GL_FRONT, GL_EMISSION, no_mat)
+  
+  glColor3f(0.1, 0.1, 0.1)
+  render_model(test_model, camera, 50, 50)
+  # render_model(test_model, camera, 40, 40)
   
   glutSwapBuffers
 end
@@ -143,6 +192,10 @@ keyboard = Proc.new do |key, x, y|
     exit(0)
   when 'h'
     camera.orbit(20)
+  when 'j'
+    camera.change_height(-5)
+  when 'k'
+    camera.change_height(5)
   when 'l'
     camera.orbit(-20)
   # when 'r'

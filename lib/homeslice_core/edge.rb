@@ -10,5 +10,13 @@ module Geometry
     def hash
       return [@first, @last].hash
     end
+    
+    def min
+      @first.min @last
+    end
+    
+    def max
+      @first.max @last
+    end
   end
 end

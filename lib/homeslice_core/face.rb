@@ -63,5 +63,17 @@ module Homeslice
     def hash
       @points.values.hash
     end
+    
+    def each_point(&block)
+      @points.each do |key, point|
+        block.call key, point
+      end
+    end
+    
+    def each_edge(&block)
+      @edges.each do |key, edge|
+        block.call key, edge
+      end
+    end
   end
 end

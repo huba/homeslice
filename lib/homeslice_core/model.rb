@@ -4,7 +4,7 @@ require_relative 'face'
 
 module Homeslice
   class Model
-    attr_reader :min_point, :max_point
+    attr_reader :min_point, :max_point, :center
     
     def initialize()
       @edges = {}
@@ -49,6 +49,8 @@ module Homeslice
       else
         @max_point = face.max_point
       end
+      
+      @center = @max_point - @min_point
       
       # make sure the face knows it belongs to this model now
       face.attach_to_model self
