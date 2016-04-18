@@ -48,6 +48,27 @@ describe Homeslice do
     intersection_result = layer.intersect_face face
     
     expect(intersection_result[:face_type]).to be == :proper_intersection
-    expect(intersection_result[:data]).to be == {:pq => Geometry::Point[0, 0.5, 1], :qr => Geometry::Point[0, 1.5, 1]}
+    # The points are now 2D
+    expect(intersection_result[:data]).to be == {:pq => Geometry::Point[0, 0.5], :qr => Geometry::Point[0, 1.5]}
+  end
+  
+  it "should generate an approrpriate height layer stack" do
+    model = Homeslice::Parser.read_file 'spec/test_models/10mm_test_cube.stl'
+    layer_stack = Homeslice::ModelLayerStack.new model, 0.25
+    
+    expect(layer_stack.layer_count).to be == 40
+    expect(layer_stack[0].z_offset).to be == 0.25
+    expect(layer_stack[-1].z_offset).to be == 10
+  end
+  
+  it "should calculate the correct layer indexes based on the given z_offset" do
+    model = Homeslice::Parser.read_file 'spec/test_models/10mm_test_cube.stl'
+    layer_stack = Homeslice::ModelLayerStack.new model, 0.25
+    
+    expect(layer_stack.index_of 0.1).to be == 0
+    expect(layer_stack.index_of 0.25).to be == 0
+    expect(layer_stack.index_of 0.26).to be == 1
+    expect(layer_stack.index_of 10.00100040435791).to be == 39
+    expect(layer_stack.index_of -3.0).to be nil
   end
 end
